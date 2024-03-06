@@ -39,9 +39,9 @@ function Home({navigation}) {
       <View style={styles.leftSection}>
         <Left />
       </View>
-      <View style={styles.rightSection}>
+      {/* <View style={styles.rightSection}>
        <Right/>
-      </View>
+      </View> */}
     </View>
   );
 }
@@ -55,9 +55,9 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 0,
   },
-  rightSection: {
-    flex: 1,
-  },
+  // rightSection: {
+  //   flex: 1,
+  // },
 });
 
 export default Home;

@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   },
   input: {
     borderRadius: 20,
-    width: 400,
+    width: "100%",
     padding: 8,
     marginBottom: 10,
   },

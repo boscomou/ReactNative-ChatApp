@@ -12,6 +12,7 @@ import { CurrentUserDataContext } from './CurrentUserDataContext';
 import { ChatContextProvider } from './SelectedChatContext';
 import { SelectedChatRoomContext } from './SelectedChatRoomContext';
 import { SendPhotoContext } from './SendPhotoContext';
+import Right from './screens/Right';
 
 
 const Stack = createNativeStackNavigator()
@@ -31,7 +32,7 @@ export default function App() {
       <SendPhotoContext.Provider value={{sendPhoto,setSendPhoto}}>
         <ChatContextProvider>
     
-      <Stack.Navigator initialRouteName='Home' screenOptions={{
+      <Stack.Navigator initialRouteName='LoginAndSignUpScreen' screenOptions={{
         // headerBackVisible:false
       }}>
 
@@ -39,6 +40,7 @@ export default function App() {
         <Stack.Screen name="LoginScreen" component={LoginScreen} />
         <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
         <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="Right" component={Right} />
       </Stack.Navigator>
       </ChatContextProvider>
       </SendPhotoContext.Provider>

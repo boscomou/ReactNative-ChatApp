@@ -5,6 +5,7 @@ import { collection, doc, onSnapshot, getDocs, query, where } from "firebase/fir
 import { db } from '../config/firebase';
 import { CurrentUserDataContext } from '../CurrentUserDataContext';
 import { SelectedChatContext } from '../SelectedChatContext';
+import { useNavigation } from '@react-navigation/native';
 
 function ConversationTab() {
 
@@ -13,6 +14,7 @@ function ConversationTab() {
 
   const { currentUserData } = useContext(CurrentUserDataContext);
   const { dispatch } = useContext(SelectedChatContext);
+  const navigation = useNavigation();
 
   useEffect(() => {
     const getChats = async () => {
@@ -56,14 +58,16 @@ function ConversationTab() {
           key={user.userInfo.username}
           onPress={() => {
             setSelectedChatRoom(user);
+            navigation.navigate("Right");
             dispatch({ type: "CHANGE_USER", payload: user.userInfo });
           }}
         >
           <View
             style={{
               display: 'flex',
+              flexDirection: "row",
               alignItems: 'center',
-              padding: 10,
+              padding: 20,
               cursor: 'pointer',
               width: '100%',
               backgroundColor: selectedChatRoom && selectedChatRoom.userInfo.username === user.userInfo.username ? '#fafafa' : 'lightblue'

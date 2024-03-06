@@ -15,12 +15,15 @@ import {
     setDoc,
     addDoc
 } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { View, Text, TextInput, Image, TouchableOpacity, ScrollView, Button, StyleSheet } from 'react-native';
+import {ref, uploadBytes, getDownloadURL, uploadBytesResumable } from 'firebase/storage';
+import { View, Text, TextInput, Image, TouchableOpacity, ScrollView, Button, StyleSheet,Modal } from 'react-native';
 import Popup from '../components/Popup';
-import Dialog from 'react-native-dialog';
 import { v4 } from 'uuid';
 import ImageZoomPopup from '../components/ImageZoomPopup';
+import Img from '../components/img/img.png'
+import * as ImagePicker from 'expo-image-picker';
+import { Dialog, Portal, PaperProvider } from 'react-native-paper';
+import { v4 as uuidv4 } from 'uuid';
 
 
 
@@ -52,36 +55,45 @@ function ChatTab() {
     };
 
     const updateChats = async () => {
-        await updateDoc(doc(db, 'chats', data && data.chatId), {
+        const chatDocRef = doc(db, 'chats', data && data.chatId);
+
+        // Update messages array using arrayUnion()
+        await updateDoc(chatDocRef, {
             messages: arrayUnion({
                 id: uuid(),
                 text: inputText,
                 senderId: currentUserData.uid,
-                date: serverTimestamp(),
+                date: new Date(),
             }),
         });
 
-        const chatCollectionCurrentUserRef = collection(
+        const currentUserChatCollectionRef = collection(
             doc(db, 'userChats', currentUserData.uid),
             'userChatCollection'
         );
-        await updateDoc(doc(chatCollectionCurrentUserRef, data.chatId), {
-            lastMessage: inputText,
-            date: serverTimestamp(),
-        });
 
-        const chatCollectionDataUserRef = collection(
+        const dataUserChatCollectionRef = collection(
             doc(db, 'userChats', data.user.uid),
             'userChatCollection'
         );
-        await updateDoc(doc(chatCollectionDataUserRef, data.chatId), {
+
+        // Update current user's chat document
+        await updateDoc(doc(currentUserChatCollectionRef, data.chatId), {
             lastMessage: inputText,
-            date: serverTimestamp(),
+            date: new Date(),
+        });
+
+        // Update other user's chat document
+        await updateDoc(doc(dataUserChatCollectionRef, data.chatId), {
+            lastMessage: inputText,
+            date: new Date(),
         });
 
         scrollableContainerRef.current.scrollToEnd();
         setInputText('');
     };
+
+
 
 
     const pickImage = async () => {
@@ -93,35 +105,58 @@ function ChatTab() {
             quality: 1,
         });
 
-        console.log(result);
+        console.log(result.assets[0]);
         console.log(result);
 
         if (!result.canceled) {
             setSelectedImage(result.assets[0]);
+            setSelectedImageURL(result.assets[0].uri);
+
+
         }
     };
 
-    const uploadImage = () => {
+    const uploadImage = async() => {
         if (selectedImage == null) {
+            console.log("no selectedImage")
             return;
         }
 
-        const imageRef = ref(storage, `images/chats/${selectedImage.name + v4()}`);
-        uploadBytes(imageRef, selectedImage).then(() => {
-            alert('Image Uploaded');
-            getDownloadURL(imageRef).then(async (downloadURL) => {
+        const response = await fetch(selectedImage.uri);
+        const blob = await response.blob();
+        const imageRef = ref(storage, `images/${selectedImage.fileName + uuidv4()}`);
+        const uploadTask = uploadBytesResumable(imageRef,blob)
+
+        uploadTask.on("state_changed",
+        (snapshot) =>{
+          const progress = (snapshot.bytesTransferred/ snapshot.totalBytes) *100
+          console.log("Upload is "+progress+ "%done");
+    
+        },
+        (error) => {
+          console.log("Error uploading image:", error);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref)
+            .then(async (downloadURL) => {
                 await updateDoc(doc(db, 'chats', data && data.chatId), {
                     messages: arrayUnion({
                         id: uuid(),
                         text: 'photo',
                         image: downloadURL,
                         senderId: currentUserData.uid,
-                        date: serverTimestamp(),
+                        date: new Date()
                     }),
                 });
                 scrollableContainerRef.current.scrollToEnd();
+            })
+            .catch((error) => {
+              console.log("Error getting download URL:", error);
             });
-        });
+        }
+        )
+
+;
 
         setSendPhoto(false);
         setInputText('');
@@ -154,8 +189,9 @@ function ChatTab() {
     useEffect(() => {
         if (selectedImageURL) {
             setOpenPopup(true);
+            console.log("selectedImage true")
         }
-    }, [selectedImage]);
+    }, [selectedImageURL]);
 
     useEffect(() => {
         if (openImageZoomPopup) {
@@ -169,64 +205,143 @@ function ChatTab() {
         resizeMode: 'cover',
     };
 
+
+
     return selectedChatRoom != null && (
-        <View style={styles.chatBox}>
-            <View style={styles.header}>
+
+        <PaperProvider>
+<Portal style={{backgroundColor: "red"}}>
+            {/* <Modal
+            transparent={true}
+            visible={true}
+            >
+
+                <View style={styles.centerView}>
+                    <View style={styles.modalView}>
+                        <Text styles={styles.modalText}>yo</Text>
+                        <Button title="close" onPress={()=>setOpenPopup(false)}></Button>
+                    </View>
+                </View>
+
+
+            </Modal> */}
          
-                <View style={styles.avatarBig} >
-                <img src={data.user.photoURL} style={{width: "100%", height:"100%"}} alt="avatar" />
-                </View >
-                <Text class="name">{data.user.username}</Text>
+                <Dialog visible={openPopup} onDismiss={()=>setOpenPopup(false)} style={{ width: "80%", height: "80%" ,justifyContent: 'center', alignItems: 'center', marginLeft: "auto", marginRight:"auto" }}>
+                   
+                    <Dialog.Content style={{width:"90%", height:"70%"}}>
+                        <Text style={styles.modalText} >This is simple dialog</Text>
+                        <View style={{height:"inherit",width:"auto"}}>
+                        {selectedImageURL && <Image src={selectedImageURL } style={{width: "auto", height:"90%",objectFit: 'contain' }} />}
+                        </View>
 
-            </View>
+                        <TouchableOpacity style={styles.appButtonContainer} onPress={()=>{
+                            console.log("button pressed")
+                            setOpenPopup(false)
+                            uploadImage()
+                            }}>
+                                <Text style={styles.appButtonText}>
+                                    Send
+                                </Text>
 
-
-            <View  class="scrollable-container" ref={scrollableContainerRef}>
-                <ScrollView
-                    ref={scrollableContainerRef}
-                    style={{ maxHeight: '70%' }}
-                >
-                    {messages.map((message) => (
-                        <TouchableOpacity
-                            key={message.id}
-                            onPress={() => {
-                                if (message.image) {
-                                    setzoomImage(message.image);
-                                    setOpenImageZoomPopup(true);
-                                }
-                            }}
-                        >
-                            {message.image ? (
-                                <Image source={{ uri: message.image }} />
-                            ) : (
-                                <Text>{message.text}</Text>
-                            )}
                         </TouchableOpacity>
-                    ))}
-                </ScrollView>
+
+                    </Dialog.Content>
+                </Dialog>
+                </Portal>
+
+            <View key="3" style={styles.chatBox}>
+
+
+                <View style={styles.header}>
+
+                    <View style={styles.avatarBig} >
+                        <Image src={data.user.photoURL} style={{ width: "100%", height: "100%" }} alt="avatar" />
+                    </View >
+                    <Text class="name">{data.user.username}</Text>
+
+                </View>
+
+                <View class="scrollable-container" style={styles.scrollableContainer} ref={scrollableContainerRef}>
+                    <ScrollView
+                        ref={scrollableContainerRef}
+
+                    >
+
+                        {messages.map((message) => {
+                            if (message.senderId === currentUserData.uid) {
+                                return (
+                                    <View style={[styles.message, styles.messageRight]}>
+                                        <View style={styles.avatarSmall}>
+                                            <Image src={currentUserData.photoURL} style={{ width: "100%", height: "100%" }} />
+                                        </View>
+                                        <View style={[styles.bubbleDark, styles.messageBubble, styles.chatRoomBubble, { maxWidth: "90%", wordWrap: "break-word" }]}>
+                                            {message.image ? (
+                                                console.log(message.image),
+                                                <Image src={message.image}  style={somestyle} onClick={() => {
+                                                    setOpenImageZoomPopup(true)
+                                                    setzoomImage(message.image)
+                                                }} />
+                                            ) : (
+                                                <Text style={styles.bubbleDark}>{message.text}</Text>
+                                            )}
+                                        </View>
+                                    </View>
+                                )
+                            }
+                            else {
+                                return (
+                                    <View style={[styles.message, styles.messageLeft]}>
+                                        <View style={styles.avatarSmall}>
+                                            <Image src={currentUserData.photoURL} style={{ width: "100%", height: "100%" }} />
+                                        </View>
+                                        <View style={[styles.bubbleLight, styles.messageBubble, styles.chatRoomBubble, { maxWidth: "90%", wordWrap: "break-word" }]}>
+                                            {message.image ? (
+                                                <Image src={message.image} style={somestyle} onClick={() => {
+                                                    setOpenImageZoomPopup(true)
+                                                    setzoomImage(message.image)
+                                                }} />
+                                            ) : (
+                                                <Text style={styles.bubbleLight}>{message.text}</Text>
+                                            )}
+                                        </View>
+                                    </View>
+                                )
+                            }
+                        })}
+                    </ScrollView>
+                </View>
+                <View style={styles.typeArea}>
+                    <TextInput
+                        value={inputText}
+                        onChangeText={setInputText}
+                        placeholder="Type a message..."
+                        style={{ width: "100%", border: 'none', padding: "10px", outline: 'none' }}
+                    />
+
+
+
+
+
+                    <TouchableOpacity onPress={pickImage} style={{width: 60,alignItems: "center",justifyContent:"center"}}>
+                        <Image source={Img} />
+                        {console.log(selectedImageURL)}
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress={updateChats} style={{width: 60,alignItems: "center",justifyContent:"center"}}>
+                        <Text>Send</Text>
+                    </TouchableOpacity>
+                </View>
+
+                {/* <Popup
+                    title={selectedImage?.fileName}
+                    openPopup={openPopup}
+                    setOpenPopup={setOpenPopup}
+                    image={selectedImageURL}
+                >
+                </Popup> */}
+
             </View>
-            <View>
-                <TextInput
-                    value={inputText}
-                    onChangeText={setInputText}
-                    placeholder="Type a message..."
-                />
-
-
-                <TouchableOpacity onPress={pickImage}>
-                    <Text >Choose Image</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity onPress={updateChats}>
-                    <Text>Send</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => setSendPhoto(true)}>
-                    <Text>Upload Image</Text>
-                </TouchableOpacity>
-            </View>
-
-
-        </View>
+        </PaperProvider>
     );
 }
 
@@ -236,7 +351,13 @@ const styles = StyleSheet.create({
     chatBox: {
         height: '100%',
         flexDirection: 'column',
-        display:"flex"
+        display: "flex"
+    },
+    chatRoomBubble: {
+        padding: 10,
+        fontTize: 14,
+        marginTop: 5,
+        display: "inline-block"
     },
     header: {
         flexDirection: 'row',
@@ -257,9 +378,81 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
     scrollableContainer: {
- 
+
         /* Set the height of the container */
-       flex:1,
-       overflow: "auto"/* Enable scrollbars when needed */
-     }
+        flex: 1,
+        overflow: "auto"/* Enable scrollbars when needed */
+    },
+    typeArea: {
+        display: 'flex',
+        height: 65,
+        backgroundColor: '#fff',
+        borderRadius: 20,
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+    },
+    message: {
+        marginBottom: 15,
+        display: "flex",
+        flexDirection: "column"
+    },
+    messageLeft: {
+        alignItems: " flex-start"
+    },
+    messageRight: {
+        alignItems: "flex-end"
+    },
+    messageBubble: {
+        borderRadius: 5,
+        borderBottomLeftRadius: 5,
+        borderTopRightRadius: 0,
+        borderBottomRightRadius: 5,
+    },
+    avatarSmall: {
+        width: 25,
+        height: 25,
+        borderRadius: 50,
+        overflow: "hidden"
+    },
+    bubbleLight: {
+        backgroundColor: "#fbcffc"
+    },
+    bubbleDark: {
+        color: "#ffffff",
+        backgroundColor: "#be79df"
+    },
+    centerView: {
+        flex:1,
+        justifyContent: 'center',
+        alignItems: "center"
+    },
+    modalText:{
+        fontSize:20,
+        marginBottom: 20,
+        alignSelf
+    },
+    modalView:{
+        backgroundColor:'white',
+        padding:35,
+        borderRadius:20,
+        shadowColor:'#000',
+        elevation:5
+    },
+    appButtonContainer: {
+
+        elevation: 10,
+        backgroundColor: "blue",
+        borderRadius: 10,
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        marginTop: 20
+        
+      },
+    appButtonText: {
+        fontSize: 18,
+        color: "#fff",
+        fontWeight: "bold",
+        alignSelf: "center",
+        textTransform: "uppercase"
+      }
 })
