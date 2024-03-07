@@ -40,7 +40,7 @@ export default function App() {
         <Stack.Screen name="LoginScreen" component={LoginScreen} />
         <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
         <Stack.Screen name="Home" component={Home} />
-        <Stack.Screen name="Right" component={Right} />
+        <Stack.Screen name="ChatRoom" component={Right} />
       </Stack.Navigator>
       </ChatContextProvider>
       </SendPhotoContext.Provider>

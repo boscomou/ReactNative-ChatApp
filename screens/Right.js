@@ -5,9 +5,6 @@ import ChatTab from './ChatTab';
 const Right = () => {
   return (
     <View style={styles.container}>
-      <View style={styles.logoutContainer}>
-        <Button title="Logout" onPress={() => {}} />
-      </View>
       <View style={styles.chatTabContainer}>
         <ChatTab />
       </View>

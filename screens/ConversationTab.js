@@ -58,7 +58,7 @@ function ConversationTab() {
           key={user.userInfo.username}
           onPress={() => {
             setSelectedChatRoom(user);
-            navigation.navigate("Right");
+            navigation.navigate("ChatRoom");
             dispatch({ type: "CHANGE_USER", payload: user.userInfo });
           }}
         >
@@ -70,7 +70,7 @@ function ConversationTab() {
               padding: 20,
               cursor: 'pointer',
               width: '100%',
-              backgroundColor: selectedChatRoom && selectedChatRoom.userInfo.username === user.userInfo.username ? '#fafafa' : 'lightblue'
+              backgroundColor: 'lightblue' 
             }}
           >
             <View style={{ marginRight: 10, maxWidth: "100%" }}>
