@@ -22,17 +22,20 @@ const Left = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 1
   },
   profileTabContainer: {
     padding: 20,
-    backgroundColor: "red"
+    backgroundColor: "red",
+    
   },
   searchTabContainer: {
-    padding: 10,
+    
+  minHeight: "9%"
+
   },
   conversationTabContainer: {
-    flex: 1,
+
   },
 });
 

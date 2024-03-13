@@ -81,7 +81,10 @@ const SearchTab = () => {
 
   return (
     <View style={styles.container}>
-      <TextInput
+      
+        <Text style={{}}>saasdasdsdasdas</Text>
+      
+      {/* <TextInput
         style={styles.input}
         placeholder="Find a user"
         onChangeText={(text) => setInput(text)}
@@ -92,7 +95,7 @@ const SearchTab = () => {
           <Image style={styles.userPhoto} source={{ uri: user.photoURL }} />
           <Text style={styles.username}>{user.username}</Text>
         </TouchableOpacity>
-      )}
+      )} */}
     </View>
   );
 };
@@ -100,14 +103,19 @@ const SearchTab = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'purple'
   },
   input: {
-    borderRadius: 20,
+    borderRadius: 30,
     width: "100%",
     padding: 8,
-    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: 'blue',
+    
+
   },
   userContainer: {
     flexDirection: 'row',
