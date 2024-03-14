@@ -119,8 +119,6 @@ function SignUpScreen({navigation}) {
               <Text style={styles.appButtonText}>Choose Image</Text>
             </TouchableOpacity>
 
-            <Text>{email}</Text>
-
             <TouchableOpacity onPress={uploadImage} disabled={uploading} style={styles.appButtonContainer}>
               <Text style={styles.appButtonText}>Upload Image</Text>
             </TouchableOpacity>

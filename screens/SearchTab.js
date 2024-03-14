@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, TextInput, TouchableOpacity, Text, Image, StyleSheet } from 'react-native';
+import { View, TextInput, TouchableOpacity, Text, Image, StyleSheet, KeyboardAvoidingView} from 'react-native';
 import { collection, query, where, getDocs, doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { db, auth, storage } from '../config/firebase';
 import { CurrentUserDataContext } from '../CurrentUserDataContext';
@@ -82,9 +82,9 @@ const SearchTab = () => {
   return (
     <View style={styles.container}>
       
-        <Text style={{}}>saasdasdsdasdas</Text>
+
       
-      {/* <TextInput
+      <TextInput
         style={styles.input}
         placeholder="Find a user"
         onChangeText={(text) => setInput(text)}
@@ -95,18 +95,17 @@ const SearchTab = () => {
           <Image style={styles.userPhoto} source={{ uri: user.photoURL }} />
           <Text style={styles.username}>{user.username}</Text>
         </TouchableOpacity>
-      )} */}
+      )} 
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-  
+    
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'purple'
+    padding:10
   },
   input: {
     borderRadius: 30,

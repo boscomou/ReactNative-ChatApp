@@ -12,9 +12,6 @@ function ProfileTab() {
         <Image source={{ uri: currentUserData?.photoURL }} style={styles.image} />
         <Text>{currentUserData?.username}</Text>
       </View>
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Setting</Text>
-      </TouchableOpacity>
     </View>
   );
 }

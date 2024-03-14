@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity,ScrollView } from 'react-native';
 import { SelectedChatRoomContext } from "../SelectedChatRoomContext";
 import { collection, doc, onSnapshot, getDocs, query, where } from "firebase/firestore";
 import { db } from '../config/firebase';
@@ -51,7 +51,7 @@ function ConversationTab() {
   }
 
   return (
-    <View>
+    <ScrollView>
       {chatList?.map((user) => (
 
         <TouchableOpacity
@@ -83,7 +83,7 @@ function ConversationTab() {
           </View>
         </TouchableOpacity>
       ))}
-    </View>
+    </ScrollView>
   );
   
  

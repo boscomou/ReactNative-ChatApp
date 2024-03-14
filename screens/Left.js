@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet,ScrollView } from 'react-native';
 import ProfileTab from './ProfileTab';
 import SearchTab from './SearchTab';
 import ConversationTab from './ConversationTab';
@@ -13,9 +13,9 @@ const Left = () => {
       <View style={styles.searchTabContainer}>
       <SearchTab/>
       </View>
-      <View style={styles.conversationTabContainer}>
+      <ScrollView style={styles.conversationTabContainer}>
        <ConversationTab/>
-      </View>
+      </ScrollView>
     </View>
   );
 };
@@ -27,11 +27,10 @@ const styles = StyleSheet.create({
   profileTabContainer: {
     padding: 20,
     backgroundColor: "red",
-    
+
   },
   searchTabContainer: {
     
-  minHeight: "9%"
 
   },
   conversationTabContainer: {

@@ -258,7 +258,7 @@ function ChatTab() {
                     <View style={styles.avatarBig} >
                         <Image src={data.user.photoURL} style={{ width: "100%", height: "100%" }} alt="avatar" />
                     </View >
-                    <Text class="name">{data.user.username}</Text>
+                    <Text style={{marginStart:5}}>{data.user.username}</Text>
 
                 </View>
 
@@ -304,7 +304,7 @@ function ChatTab() {
                                 return (
                                     <View style={[styles.message, styles.messageLeft]}>
                                         <View style={styles.avatarSmall}>
-                                            <Image src={currentUserData.photoURL} style={{ width: "100%", height: "100%" }} />
+                                            <Image src={data.user.photoURL} style={{ width: "100%", height: "100%" }} />
                                         </View>
                                         <View style={[styles.bubbleLight, styles.messageBubble, styles.chatRoomBubble, { maxWidth: "90%", wordWrap: "break-word" }]}>
                                             {message.image ? (
@@ -373,9 +373,9 @@ const styles = StyleSheet.create({
     },
     chatRoomBubble: {
         padding: 10,
-        fontTize: 14,
+        fontSize: 14,
         marginTop: 5,
-        display: "inline-block"
+        display: "inline-block",
     },
     header: {
         flexDirection: 'row',
@@ -425,6 +425,7 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 5,
         borderTopRightRadius: 0,
         borderBottomRightRadius: 5,
+        
     },
     avatarSmall: {
         width: 25,
@@ -433,7 +434,8 @@ const styles = StyleSheet.create({
         overflow: "hidden"
     },
     bubbleLight: {
-        backgroundColor: "#fbcffc"
+        backgroundColor: "#fbcffc",
+       alignSelf:"flex-start"
     },
     bubbleDark: {
         color: "#ffffff",
