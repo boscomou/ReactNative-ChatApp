@@ -15,6 +15,7 @@ function ConversationTab() {
   const { currentUserData } = useContext(CurrentUserDataContext);
   const { dispatch } = useContext(SelectedChatContext);
   const navigation = useNavigation();
+  const setTrue = true
 
   useEffect(() => {
     const getChats = async () => {
@@ -27,7 +28,8 @@ function ConversationTab() {
         });
 
         setChatList(chats);
-        console.log(chatList)
+        console.log(chats)
+        console.log( currentUserData?.uid)
       });
 
       return () => {
@@ -36,7 +38,7 @@ function ConversationTab() {
     };
 
     currentUserData?.uid && getChats();
-  }, [currentUserData?.uid]);
+  }, [currentUserData?.uid ]);
 
   const getDateAndTime = (seconds, nanoseconds) => {
     const formattedDateTime = new Date(seconds * 1000 + nanoseconds / 1000000);

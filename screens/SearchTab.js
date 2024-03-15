@@ -13,10 +13,10 @@ const SearchTab = () => {
   const { currentUserData, setCurrentUserData } = useContext(CurrentUserDataContext);
 
   const handleSearch = async () => {
-    const q = query(collection(db, 'users'), where('username', '==', input));
+    const s = query(collection(db, 'users'), where('username', '==', input));
 
     try {
-      const querySnapshot = await getDocs(q);
+      const querySnapshot = await getDocs(s);
       console.log(querySnapshot);
       querySnapshot.forEach((doc) => {
         // doc.data() is never undefined for query doc snapshots
